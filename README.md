@@ -1,4 +1,17 @@
-# little-eidos-playg# little-eidos-playground
+# little-eidos-playground
 
-A minimal Eidos‐based lexer/parser + one‐qubit toy engine for experimentation in ChatGPT Codex.
-round
+This repository contains a minimal Eidos parser and a simple one-qubit toy engine
+for experimentation. The `emergent_intelligence.py` script fetches real time data,
+generates a symbolic `.eidos` script, executes it, and commits the result.
+
+## Usage
+
+Install dependencies and run:
+
+```bash
+pip install -r requirements.txt
+python emergent_intelligence.py
+```
+
+The script will create `generated.eidos`, execute it line by line, display the
+quantum state probabilities, and attempt to commit the generated file.
