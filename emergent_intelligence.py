@@ -1,9 +1,14 @@
 import json
+import os
 import time
+from datetime import datetime
 import subprocess
 import requests
 
-from engine import QuantumToy
+import pandas as pd
+import numpy as np
+from engine import QuantumEngine
+from forecasting import forecast_price, forecast_return
 from parser import Parser
 from repl import REPL
 
@@ -25,6 +30,20 @@ def fetch_bitcoin():
         freq_const = price / 10000
         print(f"Using default price {price} -> freq_const={freq_const}")
         return "₿", freq_const
+
+
+def fetch_btc_series(days: int = 120) -> pd.Series:
+    """Retrieve historical BTC prices for forecasting."""
+    try:
+        import yfinance as yf
+
+        data = yf.download("BTC-USD", period=f"{days}d", interval="1d")
+        close = data["Close"].dropna()
+        print(f"Fetched {len(close)} BTC prices for forecasting")
+        return close
+    except Exception as e:
+        print(f"BTC history fetch failed: {e}")
+        return pd.Series(dtype=float)
 
 
 def fetch_weather(lat="0", lon="0"):
@@ -84,9 +103,9 @@ def generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const):
         f.write("collapse\n")
 
 
-def run_script():
-    q = QuantumToy()
-    repl = REPL(q)
+def run_script(theta: float) -> None:
+    q = QuantumEngine(1)
+    repl = REPL(q, angle=theta)
     with open("generated.eidos", encoding="utf8") as f:
         for line in f:
             if line.strip():
@@ -95,11 +114,27 @@ def run_script():
                 repl.execute(stmt)
 
 
-def auto_commit():
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    subprocess.run(["git", "add", "generated.eidos"], check=False)
-    subprocess.run(["git", "commit", "-m", f"chore: update generated.eidos at {timestamp}"], check=False)
-    subprocess.run(["git", "push", "origin", "feature/emergent-playground"], check=False)
+def auto_commit() -> None:
+    """Commit and push ``generated.eidos`` to an auto branch."""
+
+    if os.environ.get("EIDOS_AUTOPUSH", "1") == "0":
+        print("Autopush disabled via EIDOS_AUTOPUSH")
+        return
+
+    if subprocess.run(["git", "diff", "--quiet"]).returncode != 0:
+        print("Repository not clean; skipping push")
+        return
+
+    ts = datetime.utcnow().replace(microsecond=0)
+    branch = f"autogen/{ts:%Y-%m-%d-%H%M}"
+    msg = f"\U0001F916 auto-growth: synth\u2010eidos at {ts.isoformat()}"
+
+    subprocess.run(["git", "checkout", "-b", branch], check=True)
+    subprocess.run(["git", "add", "generated.eidos"], check=True)
+    subprocess.run(["git", "commit", "-m", msg], check=True)
+    result = subprocess.run(["git", "push", "-u", "origin", branch])
+    if result.returncode != 0:
+        raise RuntimeError("Push rejected")
 
 
 def main():
@@ -107,8 +142,17 @@ def main():
     vib_glyph, vib_const = fetch_weather()
     energy_glyph, energy_const = fetch_trending()
 
+    series = fetch_btc_series()
+    theta = 0.0
+    if len(series) > 0:
+        try:
+            r_hat = forecast_return(series)
+            theta = float(np.clip(r_hat * np.pi, -np.pi, np.pi))
+        except Exception as e:
+            print(f"Forecast failed: {e}")
+
     generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const)
-    run_script()
+    run_script(theta)
     auto_commit()
 
 
