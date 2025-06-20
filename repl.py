@@ -1,9 +1,10 @@
-from engine import QuantumToy
+from engine import QuantumEngine
 
 class REPL:
-    def __init__(self, engine: QuantumToy):
+    def __init__(self, engine: QuantumEngine, angle: float = 0.0):
         self.engine = engine
         self.env = {}
+        self.angle = angle
 
     def execute(self, stmt):
         if stmt is None:
@@ -21,10 +22,12 @@ class REPL:
             if glyph is None:
                 print(f'Unknown symbol {name}')
                 return
-            mapping = {'₿': 'X', '☀️': 'H', '📈': 'I'}
+            mapping = {'₿': 'X', '☀️': 'H', '📈': 'RZ'}
             gate = mapping.get(glyph)
-            if gate:
-                self.engine.apply_gate(gate)
+            if gate == 'RZ':
+                self.engine.apply('RZ', 0, theta=self.angle)
+            elif gate:
+                self.engine.apply(gate, 0)
             print('state:', self.engine.state)
             self.engine.show_probabilities()
         elif cmd == 'collapse':
