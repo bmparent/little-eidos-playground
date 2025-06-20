@@ -1,6 +1,7 @@
 import json
 import time
 import subprocess
+import os
 import requests
 
 from engine import QuantumToy
@@ -99,7 +100,8 @@ def auto_commit():
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     subprocess.run(["git", "add", "generated.eidos"], check=False)
     subprocess.run(["git", "commit", "-m", f"chore: update generated.eidos at {timestamp}"], check=False)
-    subprocess.run(["git", "push", "origin", "feature/emergent-playground"], check=False)
+    if os.getenv("EIDOS_AUTOPUSH", "1") != "0":
+        subprocess.run(["git", "push", "origin", "feature/emergent-playground"], check=False)
 
 
 def main():
