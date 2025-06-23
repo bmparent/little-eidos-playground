@@ -82,6 +82,7 @@ def generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const):
         f.write("let Energy = 📈\n")
         f.write(f"entropy {energy_const}\n")
         f.write("observe Energy\n\n")
+        f.write("⚡\n")
         f.write("collapse\n")
 
 

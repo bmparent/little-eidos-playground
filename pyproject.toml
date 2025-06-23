@@ -17,6 +17,7 @@ dev = [
     "pytest",
     "responses",
     "optuna",
+    "pytest-mock",
     "portalocker",
 ]
 
@@ -24,7 +25,7 @@ dev = [
 eidos-agent = "agents.__init__:get"
 
 [tool.setuptools]
-packages = ["agents"]
+packages = ["agents", "sensors"]
 py-modules = [
   "engine",
   "memory",

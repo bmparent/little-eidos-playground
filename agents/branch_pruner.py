@@ -30,5 +30,9 @@ def main(argv=None):
             delete_branch(opts.repo, name)
 
 
+def cli(argv=None):
+    main(argv)
+
+
 if __name__ == '__main__':
-    main()
+    cli()
