@@ -1,8 +1,5 @@
 """Simple forecasting utilities using FFT and variance tracking."""
 
-import json
-import time
-from pathlib import Path
 from typing import Tuple
 
 import numpy as np

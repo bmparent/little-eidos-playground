@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pytest
 from pathlib import Path
@@ -37,7 +36,7 @@ def test_entropy_watcher_threshold(tmp_path, mem_path, monkeypatch):
     watcher.BURST_GLYPH = "H"
     watcher.main()
     with open("generated.eidos") as f:
-        lines = [l.strip() for l in f if l.strip()]
+        lines = [line.strip() for line in f if line.strip()]
     assert lines == ["H"]
 
 

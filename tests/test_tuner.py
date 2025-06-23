@@ -2,7 +2,6 @@ import json
 from types import SimpleNamespace
 
 import numpy as np
-import pytest
 
 from agents import get
 
@@ -27,7 +26,8 @@ def test_tuner_creates_json(tmp_path, monkeypatch):
     mem = {"prices": list(np.arange(40, dtype=float))}
     with open("state.json", "w") as f:
         json.dump(mem, f)
-    import types, sys
+    import types
+    import sys
 
     sys.modules["optuna"] = types.SimpleNamespace(
         create_study=lambda direction: DummyStudy()

@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from types import SimpleNamespace
 
 from sensors import gcp_rng
