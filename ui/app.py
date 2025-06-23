@@ -1,7 +1,6 @@
 """Streamlit dashboard for the Eidos playground."""
 
 import os
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -9,7 +8,6 @@ import streamlit as st
 
 import emergent_intelligence
 from engine import QuantumToy
-from memory import load_memory
 
 
 st.set_page_config(page_title="Eidos Dashboard")
@@ -33,7 +31,7 @@ st.table(df)
 
 try:
     with open("generated.eidos", encoding="utf8") as f:
-        lines = [l.strip() for l in f if l.strip()]
+        lines = [line.strip() for line in f if line.strip()]
     st.text("\n".join(lines[-3:]))
 except FileNotFoundError:
     st.write("No script yet.")
