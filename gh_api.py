@@ -18,6 +18,13 @@ def list_branches(repo):
     return resp.json()
 
 
+def api_request(method: str, url: str, **kwargs) -> requests.Response:
+    """Perform a GitHub API request with auth headers."""
+    resp = requests.request(method, url, headers=_headers(), **kwargs)
+    resp.raise_for_status()
+    return resp
+
+
 def delete_branch(repo, name):
     url = f'{API}/repos/{repo}/git/refs/heads/{name}'
     resp = requests.delete(url, headers=_headers())

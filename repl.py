@@ -28,6 +28,10 @@ class REPL:
                 z = gcp_rng.latest_z()
                 theta = np.clip(z, -5, 5) * pi / 10
                 self.engine.apply_gate('RZ', theta=theta)
+            elif glyph == '🤝':
+                score = self.env.get('alignment_score', 0.0)
+                theta = np.clip(score, -5, 5) * pi / 50
+                self.engine.apply_gate('RY', qubit=1, theta=theta)
             else:
                 mapping = {'₿': 'X', '☀️': 'H', '📈': 'I'}
                 gate = mapping.get(glyph)
@@ -41,6 +45,10 @@ class REPL:
                 z = gcp_rng.latest_z()
                 theta = np.clip(z, -5, 5) * pi / 10
                 self.engine.apply_gate('RZ', theta=theta)
+            elif symbol == '🤝':
+                score = self.env.get('alignment_score', 0.0)
+                theta = np.clip(score, -5, 5) * pi / 50
+                self.engine.apply_gate('RY', qubit=1, theta=theta)
             else:
                 gate = {'H': 'H', 'X': 'X', 'I': 'I'}.get(symbol)
                 if gate:

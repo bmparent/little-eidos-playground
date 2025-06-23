@@ -53,6 +53,14 @@ class QuantumToy:
                 [[np.exp(-1j * theta / 2), 0], [0, np.exp(1j * theta / 2)]],
                 dtype=np.complex64,
             )
+        if gate_name == "RY":
+            if theta is None:
+                raise ValueError("RY gate requires theta")
+            gates["RY"] = np.array(
+                [[np.cos(theta / 2), -np.sin(theta / 2)],
+                 [np.sin(theta / 2), np.cos(theta / 2)]],
+                dtype=np.complex64,
+            )
         gate = gates.get(gate_name)
         if gate is None:
             raise ValueError(f"Unknown gate {gate_name}")

@@ -7,6 +7,7 @@ import requests
 from engine import QuantumToy
 from parser import Parser
 from repl import REPL
+from sensors import ai_buddy
 
 
 def fetch_bitcoin():
@@ -109,6 +110,10 @@ def main():
     freq_glyph, freq_const = fetch_bitcoin()
     vib_glyph, vib_const = fetch_weather()
     energy_glyph, energy_const = fetch_trending()
+
+    glyphs = [freq_glyph, vib_glyph, energy_glyph]
+    score = ai_buddy.alignment_score()
+    glyphs.append(f"🤝 {score}")
 
     generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const)
     run_script()

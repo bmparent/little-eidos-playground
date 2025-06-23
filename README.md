@@ -6,6 +6,12 @@ generates a symbolic `.eidos` script, executes it, and commits the result.
 
 - 🌐 **GCP Sense** – integrates the Global Consciousness Project RNG feed.
 
+## 🤝 Alignment with ai-devops-buddy
+
+This project tracks activity in the sibling `ai-devops-buddy` repository each
+night. An alignment score is derived from recent commits, open issues and star
+counts. When the score rises, a Visionary agent proposes roadmap updates.
+
 ## Usage
 
 Install dependencies and run:
