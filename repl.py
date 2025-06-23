@@ -5,18 +5,24 @@ from pathlib import Path
 from engine import QuantumToy
 from sensors import gcp_rng
 
-GLYPH_CFG = Path("config/glyph_map.json")
+try:
+    with open(Path(__file__).parent / "config" / "glyph_map.json") as fh:
+        _map = json.load(fh)
+except FileNotFoundError:
+    _map = {"₿": "X", "☀️": "H", "📈": "I", "⚡": "RZ", "🤝": "RY"}
+
+GLYPH_TO_GATE = _map
+
+
+def glyph_map():
+    return GLYPH_TO_GATE
 
 
 class REPL:
     def __init__(self, engine: QuantumToy):
         self.engine = engine
         self.env = {}
-        try:
-            with GLYPH_CFG.open() as f:
-                self.mapping = json.load(f)
-        except Exception:
-            self.mapping = {}
+        self.mapping = GLYPH_TO_GATE
 
     def execute(self, stmt):
         if stmt is None:
@@ -38,12 +44,22 @@ class REPL:
             if not spec:
                 print(f"Unknown glyph {glyph}")
                 return
-            gate = spec["gate"]
+            if isinstance(spec, dict):
+                gate = spec.get("gate")
+                param = spec.get("param")
+            else:
+                gate = spec
+                if gate == "RZ":
+                    param = "rng_z"
+                elif gate == "RY":
+                    param = "alignment"
+                else:
+                    param = None
             theta = None
-            if spec.get("param") == "rng_z":
+            if param == "rng_z":
                 z = gcp_rng.latest_z()
                 theta = np.clip(z, -5, 5) * pi / 10
-            elif spec.get("param") == "alignment":
+            elif param == "alignment":
                 score = self.env.get("alignment_score", 0.0)
                 theta = np.clip(score, -5, 5) * pi / 50
             if gate in {"RY"}:
@@ -58,12 +74,22 @@ class REPL:
             if not spec:
                 print(f"Unknown glyph {symbol}")
                 return
-            gate = spec["gate"]
+            if isinstance(spec, dict):
+                gate = spec.get("gate")
+                param = spec.get("param")
+            else:
+                gate = spec
+                if gate == "RZ":
+                    param = "rng_z"
+                elif gate == "RY":
+                    param = "alignment"
+                else:
+                    param = None
             theta = None
-            if spec.get("param") == "rng_z":
+            if param == "rng_z":
                 z = gcp_rng.latest_z()
                 theta = np.clip(z, -5, 5) * pi / 10
-            elif spec.get("param") == "alignment":
+            elif param == "alignment":
                 score = self.env.get("alignment_score", 0.0)
                 theta = np.clip(score, -5, 5) * pi / 50
             if gate in {"RY"}:
