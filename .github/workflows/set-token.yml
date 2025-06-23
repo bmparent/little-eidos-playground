@@ -1,0 +1,16 @@
+name: set-token
+on:
+  workflow_call:
+    secrets:
+      GH_BOT_TOKEN:
+        required: true
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    outputs:
+      token: ${{ steps.out.outputs.token }}
+    steps:
+      - id: out
+        env:
+          GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
+        run: echo "token=$GH_BOT_TOKEN" >> "$GITHUB_OUTPUT"

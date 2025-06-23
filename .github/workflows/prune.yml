@@ -1,0 +1,24 @@
+name: Prune Branches
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'
+jobs:
+  set-token:
+    uses: ./.github/workflows/set-token.yml
+    secrets: inherit
+  prune:
+    needs: set-token
+    runs-on: ubuntu-latest
+    env:
+      GH_BOT_TOKEN: ${{ needs.set-token.outputs.token }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: |
+          python -m agents.branch_pruner \
+            --owner bmparent --repo little-eidos-playground \
+            --days 30 --keep 5 --prefix autogen/
