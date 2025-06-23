@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "little-eidos-playground"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "requests",
+    "streamlit",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "responses",
+    "optuna",
+    "portalocker",
+]
+
+[project.scripts]
+eidos-agent = "agents.__init__:get"
+
+[tool.setuptools]
+packages = ["agents"]
+py-modules = [
+  "engine",
+  "memory",
+  "forecasting",
+  "parser",
+  "repl",
+  "emergent_intelligence",
+  "gh_api"
+]

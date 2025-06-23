@@ -1,0 +1,13 @@
+from importlib import import_module
+
+NAMES = [
+    'mae_watcher',
+    'entropy_watcher',
+    'branch_pruner'
+]
+
+
+def get(name):
+    if name not in NAMES:
+        raise ValueError(f"Unknown agent {name}")
+    return import_module(f'agents.{name}')

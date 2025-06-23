@@ -9,7 +9,7 @@ generates a symbolic `.eidos` script, executes it, and commits the result.
 Install dependencies and run:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 python emergent_intelligence.py
 ```
 
@@ -22,7 +22,16 @@ A minimal Streamlit dashboard is provided under `ui/app.py`.
 Launch it with:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .[dev]
+streamlit run ui/app.py
+```
+
+## Quick-Deploy
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e .[dev]
+pytest -q
 streamlit run ui/app.py
 ```
 
