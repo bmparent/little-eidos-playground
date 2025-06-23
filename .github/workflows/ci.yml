@@ -1,0 +1,21 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  set-token:
+    uses: ./.github/workflows/set-token.yml
+    secrets: inherit
+  test:
+    needs: set-token
+    runs-on: ubuntu-latest
+    env:
+      GH_BOT_TOKEN: ${{ needs.set-token.outputs.token }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: pytest -q

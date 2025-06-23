@@ -27,3 +27,13 @@ streamlit run ui/app.py
 ```
 
 ![UI preview](docs/ui_preview.png)
+
+## \ud83d\udd10 GitHub Token Setup
+
+Several helper agents interact with the GitHub API. Create a Personal Access
+Token with scopes `repo:status`, `delete_repo`, and `public_repo` and add it to
+this repository as the secret `GH_BOT_TOKEN`. Locally, export the same token in
+`GH_BOT_TOKEN` so utilities such as `agents.branch_pruner` can authenticate.
+
+The agents now rely on `gh_api.py` rather than invoking `git` directly for
+branch enumeration and deletion.
