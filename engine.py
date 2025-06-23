@@ -39,18 +39,29 @@ class QuantumToy:
         phase = np.exp(1j * random.uniform(-level, level))
         self.state *= phase
 
-    def apply_gate(self, gate_name: str, qubit: int = 0) -> None:
+    def apply_gate(self, gate_name: str, qubit: int = 0, theta: float | None = None) -> None:
         gates = {
             "X": np.array([[0, 1], [1, 0]], dtype=np.complex64),
             "H": (1 / math.sqrt(2))
             * np.array([[1, 1], [1, -1]], dtype=np.complex64),
             "I": np.eye(2, dtype=np.complex64),
         }
+        if gate_name == "RZ":
+            if theta is None:
+                raise ValueError("RZ gate requires theta")
+            gates["RZ"] = np.array(
+                [[np.exp(-1j * theta / 2), 0], [0, np.exp(1j * theta / 2)]],
+                dtype=np.complex64,
+            )
         gate = gates.get(gate_name)
         if gate is None:
             raise ValueError(f"Unknown gate {gate_name}")
         full_gate = _single_qubit_gate(gate, self.n, qubit)
         self.state = full_gate @ self.state
+
+    def show_probabilities(self) -> None:
+        probs = np.abs(self.state) ** 2
+        print('probs:', probs)
 
     def measure(self) -> int:
         probs = np.abs(self.state) ** 2

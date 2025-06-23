@@ -4,6 +4,8 @@ This repository contains a minimal Eidos parser and a simple one-qubit toy engin
 for experimentation. The `emergent_intelligence.py` script fetches real time data,
 generates a symbolic `.eidos` script, executes it, and commits the result.
 
+- 🌐 **GCP Sense** – integrates the Global Consciousness Project RNG feed.
+
 ## Usage
 
 Install dependencies and run:
@@ -25,6 +27,16 @@ Launch it with:
 pip install -e .[dev]
 streamlit run ui/app.py
 ```
+
+## 🔧 Optuna Tuner
+
+Run the tuning agent to search forecasting hyper-parameters:
+
+```bash
+python -m agents.tuner
+```
+
+Results are stored in `tuning.json`.
 
 ## Quick-Deploy
 

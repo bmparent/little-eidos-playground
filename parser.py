@@ -17,4 +17,6 @@ class Parser:
             return ('observe', name)
         if self.line == 'collapse':
             return ('collapse',)
+        if self.line in {'H', 'X', 'I', '⚡'}:
+            return ('glyph', self.line)
         raise ValueError(f'Cannot parse line: {self.line}')

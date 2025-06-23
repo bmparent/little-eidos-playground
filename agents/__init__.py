@@ -3,6 +3,7 @@ from importlib import import_module
 NAMES = [
     'mae_watcher',
     'entropy_watcher',
+    'tuner',
     'branch_pruner'
 ]
 

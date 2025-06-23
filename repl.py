@@ -1,4 +1,7 @@
+import numpy as np
+from math import pi
 from engine import QuantumToy
+from sensors import gcp_rng
 
 class REPL:
     def __init__(self, engine: QuantumToy):
@@ -21,10 +24,27 @@ class REPL:
             if glyph is None:
                 print(f'Unknown symbol {name}')
                 return
-            mapping = {'₿': 'X', '☀️': 'H', '📈': 'I'}
-            gate = mapping.get(glyph)
-            if gate:
-                self.engine.apply_gate(gate)
+            if glyph == '⚡':
+                z = gcp_rng.latest_z()
+                theta = np.clip(z, -5, 5) * pi / 10
+                self.engine.apply_gate('RZ', theta=theta)
+            else:
+                mapping = {'₿': 'X', '☀️': 'H', '📈': 'I'}
+                gate = mapping.get(glyph)
+                if gate:
+                    self.engine.apply_gate(gate)
+            print('state:', self.engine.state)
+            self.engine.show_probabilities()
+        elif cmd == 'glyph':
+            symbol = stmt[1]
+            if symbol == '⚡':
+                z = gcp_rng.latest_z()
+                theta = np.clip(z, -5, 5) * pi / 10
+                self.engine.apply_gate('RZ', theta=theta)
+            else:
+                gate = {'H': 'H', 'X': 'X', 'I': 'I'}.get(symbol)
+                if gate:
+                    self.engine.apply_gate(gate)
             print('state:', self.engine.state)
             self.engine.show_probabilities()
         elif cmd == 'collapse':

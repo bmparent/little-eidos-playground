@@ -1,7 +1,9 @@
 # core requirements for runtime
 numpy
 requests
+optuna
 streamlit
 
 # development extras
+pytest-mock
 .[dev]
