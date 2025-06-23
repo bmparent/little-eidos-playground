@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 
-from memory import load_memory, save_memory
+from state import load_state, save_state
 
 
 def _single_qubit_gate(gate: np.ndarray, n: int, target: int) -> np.ndarray:
@@ -20,17 +20,33 @@ def _single_qubit_gate(gate: np.ndarray, n: int, target: int) -> np.ndarray:
     return result
 
 
+def _two_qubit_kron(M: np.ndarray, n: int, control: int, target: int) -> np.ndarray:
+    """Return full matrix for a 2-qubit gate acting on ``control`` and ``target``."""
+    dim = 2**n
+    full = np.zeros((dim, dim), dtype=np.complex64)
+    for i in range(dim):
+        vec = np.zeros(dim, dtype=np.complex64)
+        vec[i] = 1
+        arr = vec.reshape([2] * n)
+        arr = np.moveaxis(arr, [control, target], [n - 2, n - 1])
+        arr = arr.reshape(-1, 4) @ M.T
+        arr = arr.reshape([2] * n)
+        arr = np.moveaxis(arr, [n - 2, n - 1], [control, target])
+        full[:, i] = arr.reshape(-1)
+    return full
+
+
 class QuantumToy:
     """Lightweight quantum simulator."""
 
     def __init__(self, n: int = 1):
         self.n = n
-        dim = 2 ** n
+        dim = 2**n
         self.state = np.zeros(dim, dtype=np.complex64)
         self.state[0] = 1 + 0j
-        mem = load_memory()
+        mem = load_state()
         if mem is not None:
-            amps = mem.get("state_amplitudes")
+            amps = mem.get("qubit_state")
             if isinstance(amps, np.ndarray) and amps.shape == (dim,):
                 self.state = amps
 
@@ -39,52 +55,78 @@ class QuantumToy:
         phase = np.exp(1j * random.uniform(-level, level))
         self.state *= phase
 
-    def apply_gate(self, gate_name: str, qubit: int = 0, theta: float | None = None) -> None:
-        gates = {
+    def apply(self, gate: str, *qubits: int, theta: float | None = None) -> None:
+        single = {
             "X": np.array([[0, 1], [1, 0]], dtype=np.complex64),
-            "H": (1 / math.sqrt(2))
-            * np.array([[1, 1], [1, -1]], dtype=np.complex64),
+            "H": (1 / math.sqrt(2)) * np.array([[1, 1], [1, -1]], dtype=np.complex64),
             "I": np.eye(2, dtype=np.complex64),
         }
-        if gate_name == "RZ":
-            if theta is None:
-                raise ValueError("RZ gate requires theta")
-            gates["RZ"] = np.array(
-                [[np.exp(-1j * theta / 2), 0], [0, np.exp(1j * theta / 2)]],
+        two = {
+            "CNOT": np.array(
+                [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 1], [0, 0, 1, 0]],
                 dtype=np.complex64,
-            )
-        if gate_name == "RY":
-            if theta is None:
-                raise ValueError("RY gate requires theta")
-            gates["RY"] = np.array(
-                [[np.cos(theta / 2), -np.sin(theta / 2)],
-                 [np.sin(theta / 2), np.cos(theta / 2)]],
+            ),
+            "CZ": np.array(
+                [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1]],
                 dtype=np.complex64,
-            )
-        gate = gates.get(gate_name)
-        if gate is None:
-            raise ValueError(f"Unknown gate {gate_name}")
-        full_gate = _single_qubit_gate(gate, self.n, qubit)
-        self.state = full_gate @ self.state
+            ),
+            "SWAP": np.array(
+                [[1, 0, 0, 0], [0, 0, 1, 0], [0, 1, 0, 0], [0, 0, 0, 1]],
+                dtype=np.complex64,
+            ),
+        }
+
+        if gate in {"RZ", "RY"}:
+            if theta is None:
+                raise ValueError(f"{gate} gate requires theta")
+            if gate == "RZ":
+                single["RZ"] = np.array(
+                    [[np.exp(-1j * theta / 2), 0], [0, np.exp(1j * theta / 2)]],
+                    dtype=np.complex64,
+                )
+            else:
+                single["RY"] = np.array(
+                    [
+                        [np.cos(theta / 2), -np.sin(theta / 2)],
+                        [np.sin(theta / 2), np.cos(theta / 2)],
+                    ],
+                    dtype=np.complex64,
+                )
+
+        if gate in single:
+            q = qubits[0] if qubits else 0
+            full = _single_qubit_gate(single[gate], self.n, q)
+        elif gate in two:
+            if len(qubits) != 2:
+                raise ValueError("Two-qubit gate requires two qubit indices")
+            full = _two_qubit_kron(two[gate], self.n, qubits[0], qubits[1])
+        else:
+            raise ValueError(f"Unknown gate {gate}")
+
+        self.state = full @ self.state
+        norm = np.linalg.norm(self.state)
+        if not np.isclose(norm, 1.0, atol=1e-6):
+            raise ValueError(f"State norm drift {norm}")
+
+    def apply_gate(
+        self, gate_name: str, qubit: int = 0, theta: float | None = None
+    ) -> None:
+        if gate_name in {"CNOT", "CZ", "SWAP"}:
+            raise ValueError("use apply() for multi-qubit gates")
+        self.apply(gate_name, qubit, theta=theta)
 
     def show_probabilities(self) -> None:
         probs = np.abs(self.state) ** 2
-        print('probs:', probs)
+        print("probs:", probs)
 
     def measure(self) -> int:
         probs = np.abs(self.state) ** 2
         outcome = np.random.choice(len(probs), p=probs / probs.sum())
         self.state[:] = 0
         self.state[outcome] = 1
-        prev = load_memory() or {}
-        save_memory(
-            {
-                "timestamp": prev.get("timestamp"),
-                "ck": prev.get("ck", np.array([], dtype=np.complex64)),
-                "sigma2": prev.get("sigma2", 0.0),
-                "state_amplitudes": self.state,
-            }
-        )
+        state = load_state()
+        state["qubit_state"] = self.state
+        save_state(state)
         return int(outcome)
 
     # -------------------------------------------------------------- utilities
@@ -120,8 +162,13 @@ class QuantumToy:
         import matplotlib.pyplot as plt
 
         probs = np.abs(self.state) ** 2
+        if self.n % 2 == 0:
+            side = 2 ** (self.n // 2)
+            arr = probs.reshape(side, side)
+        else:
+            arr = probs.reshape(1, -1)
         fig, ax = plt.subplots()
-        ax.imshow(probs.reshape(1, -1), aspect="auto", cmap="viridis")
+        ax.imshow(arr, aspect="auto", cmap="viridis")
         ax.set_yticks([])
         ax.set_xlabel("Basis state")
         plt.close(fig)

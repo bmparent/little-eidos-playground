@@ -1,0 +1,6 @@
+```
+flowchart TD
+    A[Data Fetch] --> B[Generate Script]
+    B --> C[Quantum Engine]
+    C --> D[State File]
+```

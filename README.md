@@ -1,8 +1,10 @@
 # little-eidos-playground
 
-This repository contains a minimal Eidos parser and a simple one-qubit toy engine
-for experimentation. The `emergent_intelligence.py` script fetches real time data,
-generates a symbolic `.eidos` script, executes it, and commits the result.
+This repository contains a minimal Eidos parser and a small quantum engine.
+The `emergent_intelligence.py` script fetches real time data, generates a
+symbolic `.eidos` script, executes it, and commits the result.
+
+![CI](https://github.com/bmparent/little-eidos-playground/actions/workflows/ci.yml/badge.svg)
 
 - 🌐 **GCP Sense** – integrates the Global Consciousness Project RNG feed.
 
@@ -23,6 +25,8 @@ python emergent_intelligence.py
 
 The script will create `generated.eidos`, execute it line by line, display the
 quantum state probabilities, and attempt to commit the generated file.
+Persistent data such as tuned parameters and qubit amplitudes live in
+`state.json`.
 
 ## Live Dashboard
 
@@ -42,7 +46,7 @@ Run the tuning agent to search forecasting hyper-parameters:
 python -m agents.tuner
 ```
 
-Results are stored in `tuning.json`.
+Results are stored in `state.json` under `tuned_params`.
 
 ## Quick-Deploy
 
@@ -54,3 +58,7 @@ streamlit run ui/app.py
 ```
 
 ![UI preview](docs/ui_preview.png)
+## Glyph Mapping
+
+Custom gate symbols are defined in `config/glyph_map.json`. The REPL loads this
+file on each run allowing new glyphs to be added by pull request.

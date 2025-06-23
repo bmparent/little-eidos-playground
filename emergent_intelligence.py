@@ -101,12 +101,17 @@ def run_script():
 def auto_commit():
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
     subprocess.run(["git", "add", "generated.eidos"], check=False)
-    subprocess.run(["git", "commit", "-m", f"chore: update generated.eidos at {timestamp}"], check=False)
+    subprocess.run(
+        ["git", "commit", "-m", f"chore: update generated.eidos at {timestamp}"],
+        check=False,
+    )
     if os.getenv("EIDOS_AUTOPUSH", "1") != "0":
-        subprocess.run(["git", "push", "origin", "feature/emergent-playground"], check=False)
+        subprocess.run(
+            ["git", "push", "origin", "feature/emergent-playground"], check=False
+        )
 
 
-def main():
+def main(dry_run: bool = False):
     freq_glyph, freq_const = fetch_bitcoin()
     vib_glyph, vib_const = fetch_weather()
     energy_glyph, energy_const = fetch_trending()
@@ -117,7 +122,8 @@ def main():
 
     generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const)
     run_script()
-    auto_commit()
+    if not dry_run:
+        auto_commit()
 
 
 if __name__ == "__main__":

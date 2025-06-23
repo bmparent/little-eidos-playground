@@ -19,6 +19,10 @@ dev = [
     "optuna",
     "pytest-mock",
     "portalocker",
+    "statsmodels",
+    "arch",
+    "black",
+    "ruff",
 ]
 
 [project.scripts]
@@ -28,7 +32,7 @@ eidos-agent = "agents.__init__:get"
 packages = ["agents", "sensors"]
 py-modules = [
   "engine",
-  "memory",
+  "state",
   "forecasting",
   "parser",
   "repl",
