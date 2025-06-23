@@ -1,6 +1,11 @@
 """Streamlit dashboard for the Eidos playground."""
 
+import argparse
+import json
 import os
+import threading
+import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -8,11 +13,40 @@ import streamlit as st
 
 import emergent_intelligence
 from engine import QuantumToy
+from state import load_state
 
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--watch", action="store_true")
+opts, _ = parser.parse_known_args()
 
 st.set_page_config(page_title="Eidos Dashboard")
 
+if opts.watch:
+
+    def _refresh():
+        time.sleep(30)
+        st.experimental_rerun()
+
+    threading.Thread(target=_refresh, daemon=True).start()
+
 qubits = st.sidebar.slider("Qubits (1-4)", 1, 4, 1)
+
+radar_path = Path("visual/radar_latest.png")
+if radar_path.exists():
+    st.sidebar.image(str(radar_path))
+
+try:
+    with open(Path("config/runes.json")) as f:
+        meanings = json.load(f)
+except FileNotFoundError:
+    meanings = {}
+
+state = load_state()
+last = state.get("last_rune")
+if last:
+    meaning = meanings.get(last, {}).get("meaning", "")
+    st.sidebar.write(f"Last rune: {last} – {meaning}")
 
 os.environ["EIDOS_AUTOPUSH"] = "0"
 emergent_intelligence.main()

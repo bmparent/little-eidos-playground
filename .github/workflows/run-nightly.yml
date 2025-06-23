@@ -19,9 +19,14 @@ jobs:
         run: |
           export GH_BOT_TOKEN=${{ secrets.GH_BOT_TOKEN }}
           python emergent_intelligence.py || exit 1
+      - name: Cast runes
+        run: python -m agents.rune_caster
+      - name: Render radar
+        run: python -m visual.radar --out visual/radar_latest.png
       - name: git status
         run: git status -s
       - name: Push
         run: |
           export GH_BOT_TOKEN=${{ secrets.GH_BOT_TOKEN }}
           git push origin HEAD || { git status --short; exit 1; }
+# nightly workflow update
