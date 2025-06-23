@@ -1,0 +1,3 @@
+{"ᚱ":{"sequence":["H","CNOT"],"meaning":"Journey – entangle path"},
+ "ᚦ":{"sequence":[{"gate":"RX","param":"sentiment"},"H",{"gate":"RZ","param":"rng_z"}],
+  "meaning":"Chaos – shake the state"}}

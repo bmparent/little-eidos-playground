@@ -1,7 +1,11 @@
 import json
+from dataclasses import dataclass
+from typing import List, Dict, Any
+
 import numpy as np
 from math import pi
 from pathlib import Path
+
 from engine import QuantumToy
 from sensors import gcp_rng
 
@@ -13,16 +17,46 @@ except FileNotFoundError:
 
 GLYPH_TO_GATE = _map
 
+try:
+    with open(Path(__file__).parent / "config" / "runes.json") as fh:
+        _runes = json.load(fh)
+except FileNotFoundError:
+    _runes = {}
+
+RUNES = _runes
+
 
 def glyph_map():
     return GLYPH_TO_GATE
 
 
+@dataclass
+class GateCall:
+    gate: str
+    theta: float | None = None
+
+
+def expand_sequence(token: str, context: Dict[str, Any]) -> List[GateCall]:
+    seq = RUNES.get(token, {}).get("sequence", [])
+    calls: List[GateCall] = []
+    for item in seq:
+        if isinstance(item, dict):
+            gate = item.get("gate")
+            param = item.get("param")
+            theta = context.get(param)
+        else:
+            gate = item
+            theta = None
+        calls.append(GateCall(gate, theta))
+    return calls
+
+
 class REPL:
-    def __init__(self, engine: QuantumToy):
+    def __init__(self, engine: QuantumToy, context: Dict[str, Any] | None = None):
         self.engine = engine
         self.env = {}
         self.mapping = GLYPH_TO_GATE
+        self.context = context or {}
 
     def execute(self, stmt):
         if stmt is None:
@@ -70,6 +104,10 @@ class REPL:
             self.engine.show_probabilities()
         elif cmd == "glyph":
             symbol = stmt[1]
+            if symbol in RUNES:
+                for call in expand_sequence(symbol, self.context):
+                    self.engine.apply(call.gate, 0, theta=call.theta)
+                return
             spec = self.mapping.get(symbol)
             if not spec:
                 print(f"Unknown glyph {symbol}")
