@@ -23,6 +23,8 @@ def test_tuner_creates_json(tmp_path, monkeypatch):
     mem = {"prices": list(np.arange(40, dtype=float))}
     with open('memory.json', 'w') as f:
         json.dump(mem, f)
+    import types, sys
+    sys.modules['optuna'] = types.SimpleNamespace(create_study=lambda direction: DummyStudy())
 
     tuner = get('tuner')
     monkeypatch.setattr(tuner.optuna, 'create_study', lambda direction: DummyStudy())
