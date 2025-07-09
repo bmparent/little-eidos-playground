@@ -11,6 +11,12 @@ jobs:
           python-version: '3.x'
       - name: Install
         run: pip install -e .[dev]
+      - name: Guard generated.eidos size
+        run: |
+          sz=$(stat --printf="%s" generated.eidos)
+          if [ $sz -gt 204800 ]; then
+            echo "generated.eidos too big ($sz bytes)"; exit 1
+          fi
       - name: Run tests
         env:
           GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN || '' }}
