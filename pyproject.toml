@@ -20,12 +20,19 @@ dev = [
     "pytest-mock",
     "portalocker",
 ]
+explore = [
+    "chromadb",
+    "pyyaml",
+    "openai",
+    "cookiecutter",
+    "jq",
+]
 
 [project.scripts]
 eidos-agent = "agents.__init__:get"
 
 [tool.setuptools]
-packages = ["agents", "sensors"]
+packages = ["agents", "sensors", "forge"]
 py-modules = [
   "engine",
   "memory",
@@ -33,5 +40,9 @@ py-modules = [
   "parser",
   "repl",
   "emergent_intelligence",
-  "gh_api"
+  "gh_api",
+  "executor",
+  "evaluator",
+  "safety",
+  "curiosity",
 ]

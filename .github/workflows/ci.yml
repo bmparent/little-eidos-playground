@@ -10,13 +10,14 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install
-        run: pip install -e .[dev]
+        run: pip install -e .[dev,explore]
       - name: Guard generated.eidos size
         run: |
           bytes=$(stat --printf="%s" generated.eidos)
           if [ "$bytes" -gt 204800 ]; then
             echo "generated.eidos too big ($bytes bytes)"; exit 1;
           fi
+      - run: yamllint .github/workflows todo
       - name: Run tests
         env:
           GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN || '' }}

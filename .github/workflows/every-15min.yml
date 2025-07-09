@@ -1,0 +1,24 @@
+name: Executor Loop
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install -e .[dev,explore]
+      - name: Pause check
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          paused=$(gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/issues?state=open" | \
+            jq -r '.[] |\
+              select(.title | test("PAUSE EIDOS"; "i")) |\
+              .number' | head -1)
+          [ -z "$paused" ] || { echo "Paused by issue #$paused"; exit 0; }
+      - run: python executor.py
