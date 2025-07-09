@@ -1,0 +1,31 @@
+name: Daily Playground
+on:
+  schedule:
+    - cron:  '17 3 * * *'  # 03:17 UTC daily
+jobs:
+  run-eidos:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: main}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.x'}
+      - name: Install repo
+        run: pip install -e .[dev]
+      - name: Run emergent intelligence
+        env:
+          EIDOS_AUTOPUSH: 1
+        run: |
+          python emergent_intelligence.py
+      - name: Skip push if no diffs or too frequent
+        run: |
+          if git diff --quiet; then
+            echo "No changes."; exit 0; fi
+          last=$(git log -1 --format=%ct)
+          now=$(date +%s)
+          if [ $((now-last)) -lt 43200 ]; then
+            echo "Commit <12h old; skipping."; exit 0; fi
+      - name: Push
+        run: git push origin HEAD:main
