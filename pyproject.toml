@@ -27,6 +27,13 @@ explore = [
     "cookiecutter",
     "jq",
 ]
+observer = [
+    "openai",
+    "transformers",
+    "pyyaml",
+    "gitpython",
+    "jq",
+]
 
 [project.scripts]
 eidos-agent = "agents.__init__:get"
