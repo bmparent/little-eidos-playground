@@ -1,21 +1,17 @@
 name: Weekly Visionary
 on:
   schedule:
-    - cron: '23 4 * * 1'
+    - cron: '45 5 * * 1'  # Monday 05:45 UTC
 jobs:
   vision:
     runs-on: ubuntu-latest
     permissions:
+      issues: write
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
-        with: {ref: main}
       - uses: actions/setup-python@v5
-        with: {python-version: '3.x'}
-      - name: Install repo
-        run: pip install -e .[dev]
-      - name: Run visionary
-        env:
-          GH_BOT_TOKEN: ${{ secrets.GH_BOT_TOKEN }}
-        run: python agents/visionary.py
+        with:
+          python-version: '3.x'
+      - run: pip install -e .[dev]
+      - run: python -m agents.visionary

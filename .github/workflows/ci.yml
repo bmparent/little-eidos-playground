@@ -13,9 +13,9 @@ jobs:
         run: pip install -e .[dev]
       - name: Guard generated.eidos size
         run: |
-          sz=$(stat --printf="%s" generated.eidos)
-          if [ $sz -gt 204800 ]; then
-            echo "generated.eidos too big ($sz bytes)"; exit 1
+          bytes=$(stat --printf="%s" generated.eidos)
+          if [ "$bytes" -gt 204800 ]; then
+            echo "generated.eidos too big ($bytes bytes)"; exit 1;
           fi
       - name: Run tests
         env:
