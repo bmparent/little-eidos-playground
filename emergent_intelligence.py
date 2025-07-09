@@ -3,14 +3,7 @@ import time
 import subprocess
 from pathlib import Path
 import requests
-
-METRICS = Path("metrics/history.jsonl")
-METRICS.parent.mkdir(exist_ok=True)
-
-def log_metrics(data: dict):
-    data["ts"] = int(time.time())
-    with METRICS.open("a") as fp:
-        fp.write(json.dumps(data) + "\n")
+from evaluator import log_metrics
 
 from engine import QuantumToy
 from parser import Parser
@@ -131,10 +124,12 @@ def main():
     glyphs.append(f"🤝 {score}")
 
     generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const)
+    log_metrics({"artefact": "generated.eidos"})
     run_script()
     entropy = freq_const + vib_const + energy_const
     log_metrics({"state_entropy": entropy, "score": score})
     auto_commit()
+    log_metrics({"artefact": "generated.eidos"})
 
 
 if __name__ == "__main__":
