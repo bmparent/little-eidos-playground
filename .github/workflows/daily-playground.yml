@@ -1,7 +1,8 @@
+---
 name: Daily Playground
-on:
+'on':
   schedule:
-    - cron:  '17 3 * * *'  # 03:17 UTC daily
+    - cron: '17 3 * * *'  # 03:17 UTC daily
 jobs:
   run-eidos:
     runs-on: ubuntu-latest
@@ -25,6 +26,9 @@ jobs:
           if git diff --quiet; then echo "No changes."; exit 0; fi
           last=$(git log -1 --format=%ct)
           now=$(date +%s)
-          if [ $((now-last)) -lt 43200 ]; then echo "Commit <12h old; skipping."; exit 0; fi
+          if [ $((now-last)) -lt 43200 ]; then
+            echo "Commit <12h old; skipping."
+            exit 0
+          fi
       - name: Push changes
         run: git push origin HEAD:main
