@@ -1,5 +1,6 @@
+---
 name: Weekly Hyper-param Tuner
-on:
+'on':
   schedule:
     - cron: '30 4 * * 0'  # Sunday 04:30 UTC
 jobs:

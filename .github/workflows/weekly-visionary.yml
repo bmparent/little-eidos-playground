@@ -1,5 +1,6 @@
+---
 name: Weekly Visionary
-on:
+'on':
   schedule:
     - cron: '45 5 * * 1'  # Monday 05:45 UTC
 jobs:
