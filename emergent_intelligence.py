@@ -1,9 +1,16 @@
 import json
 import time
 import subprocess
-import os
 from pathlib import Path
 import requests
+
+METRICS = Path("metrics/history.jsonl")
+METRICS.parent.mkdir(exist_ok=True)
+
+def log_metrics(data: dict):
+    data["ts"] = int(time.time())
+    with METRICS.open("a") as fp:
+        fp.write(json.dumps(data) + "\n")
 
 from engine import QuantumToy
 from parser import Parser
@@ -99,30 +106,19 @@ def run_script():
                 repl.execute(stmt)
 
 
-def log_metrics(freq_const, vib_const, energy_const, score):
-    Path("metrics").mkdir(exist_ok=True)
-    rec = {
-        "ts": time.time(),
-        "freq": freq_const,
-        "vib": vib_const,
-        "energy": energy_const,
-        "score": score,
-    }
-    with open("metrics/history.jsonl", "a", encoding="utf8") as f:
-        f.write(json.dumps(rec) + "\n")
 
 
 def auto_commit():
-    timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    subprocess.run(["git", "add", "generated.eidos", "metrics/history.jsonl"], check=False)
+    subprocess.run(["git", "add", "-A"], check=True)
+    if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 0:
+        print("Nothing to commit."); return
     subprocess.run([
         "git",
         "commit",
         "-m",
-        f"chore: update generated.eidos at {timestamp}",
-    ], check=False)
-    if os.getenv("EIDOS_AUTOPUSH", "1") != "0":
-        subprocess.run(["git", "push", "origin", "HEAD:main"], check=False)
+        "chore: daily emergent mutation",
+    ], check=True)
+    subprocess.run(["git", "push", "origin", "HEAD:main"], check=True)
 
 
 def main():
@@ -136,7 +132,8 @@ def main():
 
     generate_script(freq_glyph, freq_const, vib_glyph, vib_const, energy_const)
     run_script()
-    log_metrics(freq_const, vib_const, energy_const, score)
+    entropy = freq_const + vib_const + energy_const
+    log_metrics({"state_entropy": entropy, "score": score})
     auto_commit()
 
 
