@@ -1,0 +1,25 @@
+name: Observer Loop
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install -e .[dev,explore,observer,local]
+      - name: Run Observer
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          USE_LOCAL_SHADOW: ${{ secrets.USE_LOCAL_SHADOW }}
+        run: python observer.py
+      - name: Commit Observer Changes
+        run: |
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore: observer auto-update"
+            git push
+          fi
