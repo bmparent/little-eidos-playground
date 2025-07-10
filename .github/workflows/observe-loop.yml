@@ -17,9 +17,19 @@ jobs:
           USE_LOCAL_SHADOW: ${{ secrets.USE_LOCAL_SHADOW }}
         run: python observer.py
       - name: Commit Observer Changes
+        env:
+          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
+          git config user.name "eidos-bot"
+          git config user.email "eidos-bot@users.noreply.github.com"
           if ! git diff --quiet; then
             git add -A
             git commit -m "chore: observer auto-update"
-            git push
+            if [ -n "$PUSH_TOKEN" ]; then
+              repo_base="https://x-access-token:${PUSH_TOKEN}@github.com/"
+              repo="${repo_base}${GITHUB_REPOSITORY}.git"
+              git push "$repo" HEAD:main
+            else
+              git push
+            fi
           fi
