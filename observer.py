@@ -75,8 +75,17 @@ def observe_and_plan(dry_run: bool = False) -> Dict:
         "plan": plan,
     }
     OBSERVER_LOG.parent.mkdir(parents=True, exist_ok=True)
+    gitkeep = OBSERVER_LOG.parent / ".gitkeep"
+    if OBSERVER_LOG.exists() and OBSERVER_LOG.stat().st_size == 0:
+        OBSERVER_LOG.unlink()
+    before = OBSERVER_LOG.stat().st_size if OBSERVER_LOG.exists() else 0
     with OBSERVER_LOG.open("a") as f:
         f.write(json.dumps(log) + "\n")
+    after = OBSERVER_LOG.stat().st_size
+    if after <= before:
+        raise AssertionError("Observer produced no output - failing run")
+    if gitkeep.exists():
+        gitkeep.unlink()
     return plan
 
 

@@ -1,5 +1,7 @@
 # little-eidos-playground
 
+![Observer Loop](https://github.com/bmparent/little-eidos-playground/actions/workflows/observe-loop.yml/badge.svg)
+
 This repository contains a minimal Eidos parser and a simple one-qubit toy engine
 for experimentation. The `emergent_intelligence.py` script fetches real time data,
 generates a symbolic `.eidos` script, executes it, and commits the result.

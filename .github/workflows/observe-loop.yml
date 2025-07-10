@@ -1,10 +1,12 @@
 name: Observer Loop
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/5 * * * *'
 jobs:
   observe:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -16,10 +18,24 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           USE_LOCAL_SHADOW: ${{ secrets.USE_LOCAL_SHADOW }}
         run: python observer.py
-      - name: Commit Observer Changes
+      - name: Verify logs exist
         run: |
+          test -s metrics/observer.jsonl || {
+            echo "::error ::observer.jsonl is empty or missing";
+            exit 1;
+          }
+      - name: Commit Observer Changes
+        env:
+          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
+        run: |
+          git config user.name  "eidos-bot"
+          git config user.email "eidos-bot@users.noreply.github.com"
           if ! git diff --quiet; then
             git add -A
             git commit -m "chore: observer auto-update"
-            git push
+            if [ -n "$PUSH_TOKEN" ]; then
+              git push https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
+            else
+              git push
+            fi
           fi
