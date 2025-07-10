@@ -2,7 +2,8 @@
 name: Weekly Hyper-param Tuner
 'on':
   schedule:
-    - cron: '30 4 * * 0'  # Sunday 04:30 UTC
+    - cron: '0 4 * * 0'
+  workflow_dispatch: {}
 jobs:
   tune:
     runs-on: ubuntu-latest
