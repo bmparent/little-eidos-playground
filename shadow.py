@@ -26,7 +26,12 @@ def chat_with_shadow(messages: List[Dict]) -> Dict:
     else:
         import openai
 
-        resp = openai.ChatCompletion.create(
+        client = getattr(chat_with_shadow, "_client", None)
+        if client is None:
+            client = openai.OpenAI()
+            setattr(chat_with_shadow, "_client", client)
+
+        resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
             temperature=0,

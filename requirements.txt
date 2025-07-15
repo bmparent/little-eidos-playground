@@ -3,6 +3,7 @@ numpy
 requests
 optuna
 streamlit
+openai>=1.0
 
 # development extras
 pytest-mock

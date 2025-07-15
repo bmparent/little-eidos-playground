@@ -25,7 +25,13 @@ def plan(prompt: str = "Plan next action") -> Path:
             cost_estimate = len(prompt)
             if not within_budget("openai", cost_estimate):
                 raise RuntimeError("API budget exceeded")
-            resp = openai.ChatCompletion.create(
+
+            client = getattr(plan, "_client", None)
+            if client is None:
+                client = openai.OpenAI()
+                setattr(plan, "_client", client)
+
+            resp = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=200,
