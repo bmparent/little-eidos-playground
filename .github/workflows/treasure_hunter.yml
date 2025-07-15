@@ -1,0 +1,23 @@
+---
+name: Treasure Hunter
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  hunt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: treasure-hunter
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r treasure-hunter/requirements.txt
+      - run: python treasure-hunter/hunter/main.py
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GH_PAT_TREASURE: ${{ secrets.GH_PAT_TREASURE }}
