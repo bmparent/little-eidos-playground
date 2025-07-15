@@ -4,11 +4,13 @@ import yaml
 from importlib import import_module
 from pathlib import Path
 import os
+import numpy as np
 from dataclasses import dataclass
 
 from datetime import datetime
 from evaluator import evaluate
 from curiosity import calc_surprise
+from embeddings import embed
 from safety import within_budget, global_pause
 
 
@@ -59,9 +61,11 @@ def execute(card_path: Path) -> None:
     with artefact.open("w") as f:
         f.write(str(result))
 
-    surprise = calc_surprise(
-        os.urandom(4)
-    )  # dummy vector for now
+    try:
+        vector = embed(str(result))
+    except Exception:
+        vector = np.zeros(1, dtype=np.float32)
+    surprise = calc_surprise(vector)
     success = result is not None
     evaluate(card_path.name, artefact, surprise, success)
     card_path.unlink()
