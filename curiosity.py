@@ -1,15 +1,30 @@
 """Curiosity helpers."""
 
 from pathlib import Path
+from typing import Sequence, Union
 import numpy as np
+
+NumberArray = Union[Sequence[float], np.ndarray]
 
 STORE = Path("metrics/vector_store.npy")
 STORE.parent.mkdir(exist_ok=True)
 
 
-def calc_surprise(vector: np.ndarray) -> float:
+def _as_float_array(vec: Union[NumberArray, bytes, str]) -> np.ndarray:
+    """Return ``vec`` as ``np.float32`` array, raising ``TypeError`` for bytes."""
+    if isinstance(vec, (bytes, str)):
+        raise TypeError(
+            "calc_surprise expected numeric sequence, received bytes/str. "
+            "Upstream caller must decode embeddings to float list first."
+        )
+    return np.asarray(vec, dtype=np.float32)
+
+
+def calc_surprise(vector: Union[NumberArray, bytes, str]) -> float:
     """Return cosine distance of ``vector`` to the centroid of the store."""
-    vector = np.asarray(vector, dtype=np.float32)
+    vector = _as_float_array(vector)
+    if vector.ndim != 1:
+        raise ValueError("vector must be 1-D")
     if STORE.exists():
         data = np.load(STORE)
         centroid = data.mean(axis=0)
