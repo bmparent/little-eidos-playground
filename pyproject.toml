@@ -23,12 +23,12 @@ dev = [
 explore = [
     "chromadb",
     "pyyaml",
-    "openai",
+    "openai>=1.0",
     "cookiecutter",
     "jq",
 ]
 observer = [
-    "openai",
+    "openai>=1.0",
     "transformers",
     "pyyaml",
     "gitpython",
