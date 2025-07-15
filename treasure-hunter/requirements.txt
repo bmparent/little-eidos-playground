@@ -1,0 +1,11 @@
+beautifulsoup4
+arxiv
+feedparser
+python-dateutil
+requests
+pydantic
+python-dotenv
+openai
+numpy
+scikit-learn
+license-expression
