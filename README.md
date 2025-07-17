@@ -54,3 +54,11 @@ streamlit run ui/app.py
 ```
 
 ![UI preview](docs/ui_preview.png)
+
+## CI Branch Sync
+
+Ensure the `treasure-hunter` branch and workflow references are up to date:
+
+```bash
+bash scripts/ensure_treasure_hunter_branch.sh
+```
