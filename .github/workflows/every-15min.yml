@@ -17,8 +17,8 @@ jobs:
         run: |
           paused=$(gh api -H "Accept: application/vnd.github+json" \
             "/repos/${{ github.repository }}/issues?state=open" | \
-            jq -r '.[] |\
-              select(.title | test("PAUSE EIDOS"; "i")) |\
+            jq -r '.[] |
+              select(.title | test("PAUSE EIDOS"; "i")) |
               .number' | head -1)
           [ -z "$paused" ] || { echo "Paused by issue #$paused"; exit 0; }
       - run: python executor.py
