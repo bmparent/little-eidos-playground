@@ -13,7 +13,7 @@ def test_calc_surprise_updates(tmp_path, monkeypatch):
 
 
 def test_bytes_error():
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         curiosity.calc_surprise(b"\x00\x01")
 
 

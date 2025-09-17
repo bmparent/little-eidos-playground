@@ -11,11 +11,10 @@ STORE.parent.mkdir(exist_ok=True)
 
 
 def _as_float_array(vec: Union[NumberArray, bytes, str]) -> np.ndarray:
-    """Return ``vec`` as ``np.float32`` array, raising ``TypeError`` for bytes."""
+    """Return ``vec`` as ``np.float32`` array, raising ``ValueError`` for bytes."""
     if isinstance(vec, (bytes, str)):
-        raise TypeError(
-            "calc_surprise expected numeric sequence, received bytes/str. "
-            "Upstream caller must decode embeddings to float list first."
+        raise ValueError(
+            "Input vector must be a numeric array, not bytes or string."
         )
     return np.asarray(vec, dtype=np.float32)
 
