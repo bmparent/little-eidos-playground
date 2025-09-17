@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from . import sources, crawler, scorer, filters, archiver
+from .git_utils import assert_on_treasure_branch
 
 
 def run(dry_run: bool = True) -> None:
@@ -26,5 +27,6 @@ def run(dry_run: bool = True) -> None:
 
 
 if __name__ == "__main__":
+    assert_on_treasure_branch()
     dry = os.getenv("DRY_RUN", "1") == "1"
     run(dry_run=dry)
