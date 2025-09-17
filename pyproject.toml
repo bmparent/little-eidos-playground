@@ -19,6 +19,7 @@ dev = [
     "optuna",
     "pytest-mock",
     "portalocker",
+    "yamllint",
 ]
 explore = [
     "chromadb",
